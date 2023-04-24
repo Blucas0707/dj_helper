@@ -3,8 +3,8 @@ from typing import List
 from spotipy.exceptions import SpotifyException
 
 from schema.music.enums import BPMDetecterEnum
-from utils.google_service import GoogleSheetService
-from utils.spotify_service import SpotifyService
+from models.google_service import GoogleSheetService
+from models.spotify_service import SpotifyService
 from models.file import export_csv
 from models.music.bpm_detector import LibrosaBPMDetector, SpotifyBPMDetector
 

@@ -5,7 +5,7 @@ import requests
 import librosa
 from spotipy.exceptions import SpotifyException
 
-from utils.spotify_service import SpotifyService
+from models.spotify_service import SpotifyService
 
 
 class BPMDetector(metaclass=abc.ABCMeta):
