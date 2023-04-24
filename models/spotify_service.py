@@ -53,13 +53,17 @@ class SpotifyService:
         item_ds = self.get_item_ds(playlist_ids)
 
         unique_ids = set()
-        unique_item_ds = [
-            item_d
-            for item_d in item_ds
-            if item_d['track']['id']
-            and item_d['track']['id'] not in unique_ids
-            and (unique_ids.add(item_d['track']['id']) or True)
-        ]
+
+        unique_item_ds = []
+
+        for item_d in item_ds:
+            if 'track' not in item_d or 'id' not in item_d['track']:
+                continue
+
+            track_id = item_d['track']['id']
+            if track_id and track_id not in unique_ids:
+                unique_ids.add(track_id)
+                unique_item_ds.append(item_d)
 
         track_ds = [item_d['track'] for item_d in unique_item_ds]
         formatted_track_ds.extend(MultiProcessManager(8).run(_format_track, track_ds))

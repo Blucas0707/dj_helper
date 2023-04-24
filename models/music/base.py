@@ -57,8 +57,7 @@ def update_tracks_to_spreadsheet(
     track_ds = SpotifyService().get_track_ds(playlist_ids)
     print(f'Already get {len(track_ds)} tracks from {len(playlist_ids)} playlists')
 
-    sorted_track_ds = sorted(track_ds, key=lambda d: d['bpm'])
-    tracks = [list(track_d.values()) for track_d in sorted_track_ds]
+    tracks = [list(track_d.values()) for track_d in track_ds]
     GoogleSheetService().upsert_rows(
         spreadsheet_id, sheet_range, tracks, to_append=True
     )
