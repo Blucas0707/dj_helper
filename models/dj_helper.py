@@ -1,7 +1,7 @@
 import random
 from typing import List
 
-from models import music as music_m
+from models.music import base as music_m
 
 
 class DJHelper:

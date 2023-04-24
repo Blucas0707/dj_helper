@@ -1,8 +1,5 @@
 from typing import List
-import io
-import requests
 
-import librosa
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
@@ -23,10 +20,10 @@ class SpotifyService:
 
     def get_preview_url(self, track_id: str) -> str:
         return self.spotify.track(track_id)['preview_url']
-    
+
     def get_audio_analysis(self, track_id: str) -> str:
         return self.spotify.audio_analysis(track_id)
-    
+
     def get_all_playlist_items(self, item_limit: int = None) -> List[dict]:
         playlists = []
         limit = 50
@@ -55,7 +52,16 @@ class SpotifyService:
         formatted_track_ds = []
         item_ds = self.get_item_ds(playlist_ids)
 
-        track_ds = [item_d['track'] for item_d in item_ds]
+        unique_ids = set()
+        unique_item_ds = [
+            item_d
+            for item_d in item_ds
+            if item_d['track']['id']
+            and item_d['track']['id'] not in unique_ids
+            and (unique_ids.add(item_d['track']['id']) or True)
+        ]
+
+        track_ds = [item_d['track'] for item_d in unique_item_ds]
         formatted_track_ds.extend(MultiProcessManager(8).run(_format_track, track_ds))
 
         return formatted_track_ds
@@ -77,24 +83,13 @@ class SpotifyService:
         print(f'Playlist is created and {len(track_ids)} tracks are added')
 
 
-def _calculate_bpm(preview_url: str) -> str:
-    if not preview_url:
-        return 0.0
-
-    response = requests.get(preview_url)
-    audio_data = io.BytesIO(response.content)
-
-    y, sr = librosa.load(audio_data)
-    tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
-
-    return f'{tempo:.2f}'
-
-
 def _format_track(track_d: dict):
+    from models.music.base import calculate_bpm
+
     return dict(
         id=track_d['id'],
         name=track_d['name'],
-        bpm=_calculate_bpm(track_d['preview_url']),
+        bpm=calculate_bpm(track_d['id']),
         artist=track_d['artists'][0]['name'],
         duration_ms=track_d['duration_ms'],
         external_url=track_d['external_urls'].get('spotify'),
