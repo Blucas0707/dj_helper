@@ -24,9 +24,12 @@ def crawl_song_d(
     if not category:
         raise ValueError('No category specified')
 
+    if max_bpm < min_bpm:
+        raise ValueError('Max bpm is less than min bpm')
+
     song_d = {}
 
-    while min_bpm < max_bpm:
+    while min_bpm <= max_bpm:
 
         url = make_query_string(
             f'{BASE_URL}{category}',
