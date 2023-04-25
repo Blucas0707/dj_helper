@@ -1,7 +1,9 @@
 import click
 
-from models.music import base as music_m
 from settings import SPOTIFY_ALL_PLAYLIST_SPREADSHEET_ID
+from models.spotify_service import SpotifyService
+from models.music import base as music_m
+
 
 # fmt: off
 CONFIG_D = {
@@ -36,7 +38,7 @@ def update_sheet(type_: str):
         case 'playlist':
             music_m.update_playlists_to_spreadsheet(
                 spreadsheet_id=SPOTIFY_ALL_PLAYLIST_SPREADSHEET_ID,
-                sheet_range='Playlist!A2'
+                sheet_range='Playlist!A2',
             )
         case _:
             if type_ not in CONFIG_D:
@@ -50,6 +52,70 @@ def update_sheet(type_: str):
                 spreadsheet_id=spread_sheet_id,
                 sheet_range='All!A2',
             )
+
+
+@cli.command()
+@click.option(
+    '-s',
+    '--spreadsheet',
+    'spreadsheet_id',
+    required=True,
+    type=str,
+    help='Google sheet id',
+)
+@click.option(
+    '-p',
+    '--playlist',
+    'playlist_id',
+    required=True,
+    type=str,
+    help='Spotify playlist id',
+)
+@click.option(
+    '-r',
+    '--range',
+    required=True,
+    type=str,
+    help='range in Google sheet to update',
+)
+def update_tracks_to_spreadsheet(spreadsheet_id: str, playlist_id: str, range: str):
+    """
+    Updates the specified range in the Google sheet with the tracks in the specified Spotify playlist.
+    """
+    music_m.update_tracks_to_spreadsheet(
+        [playlist_id], spreadsheet_id, range, with_headers=True
+    )
+    
+
+@cli.command()
+@click.option(
+    '-n',
+    '--name',
+    required=True,
+    type=str,
+    help='Spotify playlist name',
+)
+@click.option(
+    '-d',
+    '--description',
+    required=True,
+    type=str,
+    help='Spotify playlist description',
+)
+@click.option(
+    '-tds',
+    '--track_ids',
+    required=True,
+    type=str,
+    help='track ids, ex: a,b,c',
+)
+def create_playlist(name: str, description: str, track_ids: str):
+    """
+    Creates a new Spotify playlist with the specified name and description,
+    and adds the tracks with the specified ids to the playlist.
+    """
+    track_ids = track_ids.split(',')
+    SpotifyService().create_playlist(name, description, track_ids)
 
 
 if __name__ == '__main__':
