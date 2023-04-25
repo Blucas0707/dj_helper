@@ -71,7 +71,7 @@ class SpotifyService:
         return formatted_track_ds
 
     def create_playlist(self, name: str, description: str, track_ids: List[str]):
-        print(f'Start creating playlist: {name}')
+        print(f'>>>>>> Start creating playlist: {name} <<<<<<')
         # create a new playlist
         playlist = self.spotify.user_playlist_create(
             SPOTIFY_USER_ID,

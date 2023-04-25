@@ -45,7 +45,10 @@ def get_playlist_and_export_csv(playlist_id: str):
 
 
 def update_tracks_to_spreadsheet(
-    playlist_ids: List[str], spreadsheet_id: str, sheet_range: str
+    playlist_ids: List[str],
+    spreadsheet_id: str,
+    sheet_range: str,
+    with_headers: bool = False,
 ):
     """
     Update Spotify playlists to Google Sheets.
@@ -58,6 +61,12 @@ def update_tracks_to_spreadsheet(
     print(f'Already get {len(track_ds)} tracks from {len(playlist_ids)} playlists')
 
     tracks = [list(track_d.values()) for track_d in track_ds]
+
+    if with_headers:
+        GoogleSheetService().upsert_rows(
+            spreadsheet_id, sheet_range, [HEADERS], to_append=True
+        )
+
     GoogleSheetService().upsert_rows(
         spreadsheet_id, sheet_range, tracks, to_append=True
     )
